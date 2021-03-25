@@ -1,5 +1,6 @@
 public class Battleship extends Ships {
   public Battleship() {
-    size = 4;
+    length = 4;
+    symbol = Node.B;
   }
 }

@@ -1,5 +1,6 @@
 public class Destroyer extends Ships {
   public Destroyer() {
-    size = 2;
+    length = 2;
+    symbol = Node.D;
   }
 }

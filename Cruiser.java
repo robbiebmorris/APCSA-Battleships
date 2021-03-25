@@ -1,5 +1,6 @@
 public class Cruiser extends Ships {
   public Cruiser() {
-    size = 3;
+    length = 3;
+    symbol = Node.C;
   }
 }

@@ -1,5 +1,6 @@
 public class AircraftCarrier extends Ships {
   public AircraftCarrier() {
-    size = 5;
+    length = 5;
+    symbol = Node.A;
   }
 }
