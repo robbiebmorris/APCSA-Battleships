@@ -1,14 +1,24 @@
-import java.util.Random;
+import java.util.*;
 
 public class Board {
-  Node[][] board;
+  static Node[][] board;
   static int boardSize = 10;
   static boolean ships = true;
+  static List<Ships> shipList;
 
   public Board() {
     board = new Node[boardSize][boardSize];
+    shipList = new ArrayList<Ships>();
+    shipList.add(new Destroyer());
+    shipList.add(new Cruiser());
+    shipList.add(new Battleship());
+    shipList.add(new AircraftCarrier());
     createEmptyBoard();
     placeShips(ships);
+  }
+
+  public void initializeShipTypes() {
+
   }
 
   public void createEmptyBoard() {
@@ -30,30 +40,31 @@ public class Board {
 
   public void placeShips(boolean random) {
     if (random) {
-      placeRandomShips(5);
+      placeRandomShips();
     }
     placeUserShips();
   }
 
-  public void placeRandomShips(int numberOfShips) {
+  public void placeRandomShips() {
     // 1a, 1b, 1c, 2d
     int randomRow;
     int randomCol;
+    int[] shipTypes = { 3, 2, 1, 0, 0 };
     Random randomOrientation = new Random();
 
-    for (int i = 0; i < numberOfShips; i++) {
-      randomRow = (int) (Math.random() * 10);
-      randomCol = (int) (Math.random() * 10);
-      if (board[randomRow][randomCol] == Node.EMPTY) {
-        placeShip(i, randomRow, randomCol, randomOrientation.nextBoolean());
-      } else {
-        continue;
+    int shipCounter = 0;
+    while (true) {
+      randomRow = (int) (Math.random() * 9);
+      randomCol = (int) (Math.random() * 9);
+      if (isPositionAvailable(shipTypes[shipCounter], randomRow, randomCol, randomOrientation.nextBoolean())) {
+        System.out.println(randomRow + " " + randomCol + " was suitable for ship " + shipTypes[shipCounter]);
+        placeShip(shipTypes[shipCounter], randomRow, randomCol, randomOrientation.nextBoolean());
+        shipCounter++;
+      }
+      if (shipCounter == 5) {
+        break;
       }
     }
-    /*
-     * placeAircraftCarrier(0, 0, false); placeBattleship(0, 5, true);
-     * placeCruiser(3, 3, true); placeDestroyer(6, 2, false);
-     */
   }
 
   public void placeUserShips() {
@@ -65,80 +76,46 @@ public class Board {
    * false, the orientation of the ship is vertical
    */
 
-  public void placeAircraftCarrier(int row, int col, boolean orientation) {
-    try {
-      board[row][col] = Node.A;
-      for (int i = 1; i <= 4; i++) {
-        if (orientation) {
-          board[row][col + i] = Node.A;
-        } else {
-          board[row + i][col] = Node.A;
-        }
-      }
-      // temporary
-    } catch (Exception arrayIndexOutOfBoundsException) {
-      System.out.println("That location is not possible.");
-    }
-  }
+  public void placeShip(int shipType, int row, int col, boolean orientation) {
 
-  public void placeBattleship(int row, int col, boolean orientation) {
-    try {
-      board[row][col] = Node.B;
-      for (int i = 1; i <= 3; i++) {
-        if (orientation) {
-          board[row][col + i] = Node.B;
-        } else {
-          board[row + i][col] = Node.B;
-        }
-      }
-      // temporary
-    } catch (Exception arrayIndexOutOfBoundsException) {
-      System.out.println("That location is not possible.");
-    }
-  }
-
-  public void placeCruiser(int row, int col, boolean orientation) {
-    try {
-      board[row][col] = Node.C;
-      for (int i = 1; i <= 2; i++) {
-        if (orientation) {
-          board[row][col + i] = Node.C;
-        } else {
-          board[row + i][col] = Node.C;
-        }
-      }
-      // temporary
-    } catch (Exception arrayIndexOutOfBoundsException) {
-      System.out.println("That location is not possible.");
-    }
-  }
-
-  public void placeDestroyer(int row, int col, boolean orientation) {
-    try {
-      board[row][col] = Node.D;
+    board[row][col] = shipList.get(shipType).symbol;
+    for (int i = 1; i < shipList.get(shipType).length; i++) {
       if (orientation) {
-        board[row][col + 1] = Node.D;
+        board[row][col + i] = shipList.get(shipType).symbol;
       } else {
-        board[row + 1][col] = Node.D;
+        board[row + i][col] = shipList.get(shipType).symbol;
       }
-    } catch (Exception arrayIndexOutOfBoundsException) {
-      System.out.println("That location is not possible.");
     }
   }
 
-  public void placeShip(int index, int row, int col, boolean orientation) {
+  public boolean isPositionAvailable(int shipType, int rowInitial, int colInitial, Boolean orientation) {
     try {
-      if (index == 0) {
-        placeAircraftCarrier(row, col, orientation);
-      } else if (index == 1) {
-        placeBattleship(row, col, orientation);
-      } else if (index == 2) {
-        placeCruiser(row, col, orientation);
-      } else if (index >= 3) {
-        placeDestroyer(row, col, orientation);
+      if (isCellFull(rowInitial, colInitial)) {
+        return false;
       }
-    } catch (Exception arrayIndexOutOfBoundsException) {
-      placeShip(index, row, col, orientation);
+      for (int i = 1; i < shipList.get(shipType).length; i++) {
+        if (orientation) {
+          if (isCellFull(rowInitial, colInitial + i)) {
+            return false;
+          }
+        } else {
+          if (isCellFull(rowInitial + i, colInitial)) {
+            return false;
+          }
+        }
+      }
+      return true;
+    } catch (Exception ArrayIndexOutOfBoundsException) {
+      System.out.println("caught out of bounds ship");
+      return false;
+    }
+  }
+
+  public boolean isCellFull(int row, int col) {
+    if (board[row][col] != Node.EMPTY) {
+      return false;
+    } else {
+      return true;
     }
   }
 
