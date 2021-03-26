@@ -5,6 +5,7 @@ public class Board {
   static int boardSize = 10;
   static boolean ships = true;
   static List<Ships> shipList;
+  static HashMap<Integer, Integer> shipStorage;
 
   public Board() {
     board = new Node[boardSize][boardSize];
@@ -13,8 +14,10 @@ public class Board {
     shipList.add(new Cruiser());
     shipList.add(new Battleship());
     shipList.add(new AircraftCarrier());
+    shipStorage = new HashMap<Integer, Integer>();
     createEmptyBoard();
     placeShips(ships);
+    System.out.println(shipStorage);
   }
 
   public void initializeShipTypes() {
@@ -49,16 +52,19 @@ public class Board {
     // 1a, 1b, 1c, 2d
     int randomRow;
     int randomCol;
+    boolean thisOrientation;
     int[] shipTypes = { 3, 2, 1, 0, 0 };
-    Random randomOrientation = new Random();
+    Random rand = new Random();
 
     int shipCounter = 0;
     while (true) {
-      randomRow = (int) (Math.random() * 9);
-      randomCol = (int) (Math.random() * 9);
-      if (isPositionAvailable(shipTypes[shipCounter], randomRow, randomCol, randomOrientation.nextBoolean())) {
-        System.out.println(randomRow + " " + randomCol + " was suitable for ship " + shipTypes[shipCounter]);
-        placeShip(shipTypes[shipCounter], randomRow, randomCol, randomOrientation.nextBoolean());
+      randomRow = rand.nextInt(9);
+      randomCol = rand.nextInt(9);
+      System.out.println(randomRow + " " + randomCol);
+      thisOrientation = rand.nextBoolean();
+
+      if (isPositionAvailable(shipTypes[shipCounter], randomRow, randomCol, thisOrientation)) {
+        placeShip(shipTypes[shipCounter], randomRow, randomCol, thisOrientation);
         shipCounter++;
       }
       if (shipCounter == 5) {
@@ -86,27 +92,27 @@ public class Board {
         board[row + i][col] = shipList.get(shipType).symbol;
       }
     }
+    shipStorage.put(row, col);
   }
 
   public boolean isPositionAvailable(int shipType, int rowInitial, int colInitial, Boolean orientation) {
     try {
-      if (isCellFull(rowInitial, colInitial)) {
+      if (board[rowInitial][colInitial] != Node.EMPTY) {
         return false;
       }
       for (int i = 1; i < shipList.get(shipType).length; i++) {
         if (orientation) {
-          if (isCellFull(rowInitial, colInitial + i)) {
+          if (board[rowInitial][colInitial + i] != Node.EMPTY) {
             return false;
           }
         } else {
-          if (isCellFull(rowInitial + i, colInitial)) {
+          if (board[rowInitial + i][colInitial] != Node.EMPTY) {
             return false;
           }
         }
       }
       return true;
     } catch (Exception ArrayIndexOutOfBoundsException) {
-      System.out.println("caught out of bounds ship");
       return false;
     }
   }
