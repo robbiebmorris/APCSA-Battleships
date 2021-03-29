@@ -2,22 +2,23 @@ import java.util.*;
 
 public class Board {
   static Node[][] board;
+  static Node[][] playerViewBoard;
   static int boardSize = 10;
   static boolean ships = true;
   static List<Ships> shipList;
-  static HashMap<Integer, Integer> shipStorage;
 
   public Board() {
     board = new Node[boardSize][boardSize];
+    playerViewBoard = new Node[boardSize][boardSize];
     shipList = new ArrayList<Ships>();
     shipList.add(new Destroyer());
     shipList.add(new Cruiser());
     shipList.add(new Battleship());
     shipList.add(new AircraftCarrier());
-    shipStorage = new HashMap<Integer, Integer>();
+
     createEmptyBoard();
+    createPlayerViewBoard();
     placeShips(ships);
-    System.out.println(shipStorage);
   }
 
   public void initializeShipTypes() {
@@ -32,20 +33,42 @@ public class Board {
     }
   }
 
-  public void printBoard() {
+  public void createPlayerViewBoard() {
     for (int row = 0; row < boardSize; row++) {
-      System.out.println();
       for (int col = 0; col < boardSize; col++) {
-        System.out.print(board[row][col].getNode() + " ");
+        playerViewBoard[row][col] = Node.EMPTY;
       }
+    }
+  }
+
+  public void printBoard() {
+    System.out.println("   0  1  2  3  4  5  6  7  8  9");
+    for (int row = 0; row < boardSize; row++) {
+      System.out.print(row + "  ");
+      for (int col = 0; col < boardSize; col++) {
+        System.out.print(board[row][col].getNode() + "  ");
+      }
+      System.out.println();
+    }
+  }
+
+  public void printPlayerViewBoard() {
+    System.out.println("   0  1  2  3  4  5  6  7  8  9");
+    for (int row = 0; row < boardSize; row++) {
+      System.out.print(row + "  ");
+      for (int col = 0; col < boardSize; col++) {
+        System.out.print(playerViewBoard[row][col].getNode() + "  ");
+      }
+      System.out.println();
     }
   }
 
   public void placeShips(boolean random) {
     if (random) {
       placeRandomShips();
+    } else {
+      placeUserShips();
     }
-    placeUserShips();
   }
 
   public void placeRandomShips() {
@@ -60,7 +83,6 @@ public class Board {
     while (true) {
       randomRow = rand.nextInt(9);
       randomCol = rand.nextInt(9);
-      System.out.println(randomRow + " " + randomCol);
       thisOrientation = rand.nextBoolean();
 
       if (isPositionAvailable(shipTypes[shipCounter], randomRow, randomCol, thisOrientation)) {
@@ -74,7 +96,7 @@ public class Board {
   }
 
   public void placeUserShips() {
-
+    // if extra time lol
   }
 
   /*
@@ -92,7 +114,6 @@ public class Board {
         board[row + i][col] = shipList.get(shipType).symbol;
       }
     }
-    shipStorage.put(row, col);
   }
 
   public boolean isPositionAvailable(int shipType, int rowInitial, int colInitial, Boolean orientation) {
@@ -123,6 +144,21 @@ public class Board {
     } else {
       return true;
     }
+  }
+
+  public void fire(int row, int col) {
+    if (playerViewBoard[row][col] != Node.EMPTY) {
+      System.out.println("You already fired there!");
+    } else if (board[row][col] == Node.EMPTY) {
+      playerViewBoard[row][col] = Node.BLANK;
+    } else {
+      playerViewBoard[row][col] = Node.HIT;
+    }
+  }
+
+  public boolean isShipSunk(int shipIndex, int shipType) {
+
+    return false;
   }
 
   public void boardStatistics() {
