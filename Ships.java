@@ -13,9 +13,10 @@ public class Ships {
     return this.length;
   }
 
-  public void setCoordinates(int newRow, int newCol, boolean orientation) {
+  public void setCoordinates(int newRow, int newCol, boolean newOrientation) {
     this.row = newRow;
     this.col = newCol;
+    this.orientation = newOrientation;
   }
 
   public int getRow() {
