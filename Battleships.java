@@ -2,19 +2,21 @@ import java.util.*;
 
 public class Battleships {
   public static void main(String[] args) {
+
+    //
     Board gameBoard = new Board();
     Scanner scan = new Scanner(System.in);
 
+    //
     System.out.println("Welcome to BATTLESHIPS.");
     System.out.println("The ships have been placed on the board by the computer.");
     gameBoard.printPlayerViewBoard();
 
     int rowFired = 0;
     int colFired = 0;
-    while (true) {
+    while (!gameBoard.isGameOver()) {
       String input = scan.nextLine();
       if (input.contains("fire")) {
-
         String coordinates = input.replaceAll("\\D+", "");
         rowFired = Character.getNumericValue(coordinates.charAt(0));
         colFired = Character.getNumericValue(coordinates.charAt(1));
@@ -27,7 +29,7 @@ public class Battleships {
       } else if (input.equalsIgnoreCase("view board")) {
         gameBoard.printPlayerViewBoard();
       } else if (input.equalsIgnoreCase("stats")) {
-
+        gameBoard.boardStatistics();
       } else if (input.equalsIgnoreCase("help")) {
         System.out.println("Possible Commands: ");
         System.out.println("view ships - shows the placement of all the ships ");
@@ -40,6 +42,7 @@ public class Battleships {
         System.out.println("Illegal command");
       }
     }
+    System.out.println("Game over!");
     scan.close();
   }
 }
