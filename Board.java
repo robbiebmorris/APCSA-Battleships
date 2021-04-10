@@ -6,23 +6,15 @@ public class Board {
   static int boardSize = 10;
   static boolean ships = true;
   static List<Ships> shipList;
+  static List<Node> shipStorage;
 
   public Board() {
     board = new Node[boardSize][boardSize];
     playerViewBoard = new Node[boardSize][boardSize];
-    shipList = new ArrayList<Ships>();
-    shipList.add(new Destroyer());
-    shipList.add(new Cruiser());
-    shipList.add(new Battleship());
-    shipList.add(new AircraftCarrier());
 
     createEmptyBoard();
     createPlayerViewBoard();
     placeShips(ships);
-  }
-
-  public void initializeShipTypes() {
-
   }
 
   public void createEmptyBoard() {
@@ -76,7 +68,14 @@ public class Board {
     int randomRow;
     int randomCol;
     boolean thisOrientation;
-    int[] shipTypes = { 3, 2, 1, 0, 0 };
+    // create ship objects for new ships
+    shipList = new ArrayList<Ships>();
+    shipList.add(new AircraftCarrier());
+    shipList.add(new Battleship());
+    shipList.add(new Cruiser());
+    shipList.add(new Destroyer());
+    shipList.add(new Destroyer());
+
     Random rand = new Random();
 
     int shipCounter = 0;
@@ -85,8 +84,9 @@ public class Board {
       randomCol = rand.nextInt(9);
       thisOrientation = rand.nextBoolean();
 
-      if (isPositionAvailable(shipTypes[shipCounter], randomRow, randomCol, thisOrientation)) {
-        placeShip(shipTypes[shipCounter], randomRow, randomCol, thisOrientation);
+      if (isPositionAvailable(shipList.get(shipCounter), randomRow, randomCol, thisOrientation)) {
+        placeShip(shipList.get(shipCounter), randomRow, randomCol, thisOrientation, shipCounter);
+        shipList.get(shipCounter).setCoordinates(randomRow, randomCol, thisOrientation);
         shipCounter++;
       }
       if (shipCounter == 5) {
@@ -104,24 +104,23 @@ public class Board {
    * false, the orientation of the ship is vertical
    */
 
-  public void placeShip(int shipType, int row, int col, boolean orientation) {
-
-    board[row][col] = shipList.get(shipType).symbol;
-    for (int i = 1; i < shipList.get(shipType).length; i++) {
+  public void placeShip(Ships ship, int row, int col, boolean orientation, int shipNumber) {
+    board[row][col] = ship.symbol;
+    for (int i = 1; i < ship.length; i++) {
       if (orientation) {
-        board[row][col + i] = shipList.get(shipType).symbol;
+        board[row][col + i] = ship.symbol;
       } else {
-        board[row + i][col] = shipList.get(shipType).symbol;
+        board[row + i][col] = ship.symbol;
       }
     }
   }
 
-  public boolean isPositionAvailable(int shipType, int rowInitial, int colInitial, Boolean orientation) {
+  public boolean isPositionAvailable(Ships ship, int rowInitial, int colInitial, Boolean orientation) {
     try {
       if (board[rowInitial][colInitial] != Node.EMPTY) {
         return false;
       }
-      for (int i = 1; i < shipList.get(shipType).length; i++) {
+      for (int i = 1; i < ship.length; i++) {
         if (orientation) {
           if (board[rowInitial][colInitial + i] != Node.EMPTY) {
             return false;
@@ -153,11 +152,31 @@ public class Board {
       playerViewBoard[row][col] = Node.BLANK;
     } else {
       playerViewBoard[row][col] = Node.HIT;
+      System.out.println("Hit!");
+    }
+    if (isShipSunk()) {
+      System.out.println("You sunk a ship!");
     }
   }
 
-  public boolean isShipSunk(int shipIndex, int shipType) {
+  public boolean isShipSunk() {
+    for (int i = 0; i < shipList.size(); i++) {
 
+      for (int j = 1; j < shipList.get(i).getLength(); j++) {
+        if (shipList.get(i).getOrientation()) {
+          if (playerViewBoard[shipList.get(i).getRow()][shipList.get(i).getCol() + j] == Node.HIT) {
+            shipList.remove(j);
+            return true;
+          }
+        } else {
+          if (playerViewBoard[shipList.get(i).getRow()][shipList.get(i).getCol() + j] == Node.HIT) {
+            shipList.remove(j);
+            return true;
+          }
+        }
+      }
+
+    }
     return false;
   }
 
