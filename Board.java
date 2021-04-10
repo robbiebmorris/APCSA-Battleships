@@ -8,10 +8,16 @@ public class Board {
   static List<Ships> shipList;
   static List<Node> shipStorage;
 
+  static int shotsFired;
+  static int shotsHit;
+  static int shotsMissed;
+
   public Board() {
     board = new Node[boardSize][boardSize];
     playerViewBoard = new Node[boardSize][boardSize];
-
+    shotsFired = 0;
+    shotsHit = 0;
+    shotsMissed = 0;
     createEmptyBoard();
     createPlayerViewBoard();
     placeShips(ships);
@@ -146,14 +152,19 @@ public class Board {
   }
 
   public void fire(int row, int col) {
+    shotsFired++;
     if (playerViewBoard[row][col] != Node.EMPTY) {
       System.out.println("You already fired there!");
     } else if (board[row][col] == Node.EMPTY) {
       playerViewBoard[row][col] = Node.BLANK;
+      shotsMissed++;
+      System.out.println("Miss.");
     } else {
       playerViewBoard[row][col] = Node.HIT;
+      shotsHit++;
       System.out.println("Hit!");
     }
+
     if (isShipSunk()) {
       System.out.println("You sunk a ship!");
     }
@@ -161,26 +172,43 @@ public class Board {
 
   public boolean isShipSunk() {
     for (int i = 0; i < shipList.size(); i++) {
-
       for (int j = 1; j < shipList.get(i).getLength(); j++) {
         if (shipList.get(i).getOrientation()) {
-          if (playerViewBoard[shipList.get(i).getRow()][shipList.get(i).getCol() + j] == Node.HIT) {
-            shipList.remove(j);
+          if (playerViewBoard[shipList.get(i).getRow()][shipList.get(i).getCol() + j] == Node.HIT
+              && j == shipList.get(i).getLength() - 1) {
+            shipList.remove(i);
             return true;
           }
         } else {
-          if (playerViewBoard[shipList.get(i).getRow()][shipList.get(i).getCol() + j] == Node.HIT) {
-            shipList.remove(j);
+          if (playerViewBoard[shipList.get(i).getRow() + j][shipList.get(i).getCol()] == Node.HIT
+              && j == shipList.get(i).getLength() - 1) {
+            shipList.remove(i);
             return true;
           }
         }
       }
-
     }
     return false;
   }
 
-  public void boardStatistics() {
+  public boolean isGameOver() {
+    if (shipList.size() == 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
+  public void boardStatistics() {
+    System.out.println("Number of missiles fired: " + shotsFired);
+    float hitRatio;
+    if (shotsFired == 0) {
+      System.out.println("Hit ratio: Undef");
+    } else {
+      hitRatio = (float) (shotsHit) / (float) (shotsFired) * 100;
+      System.out.println("Hit ratio: " + hitRatio + "%");
+    }
+    int shipsSunk = 5 - shipList.size();
+    System.out.println("Number of ships sunk: " + shipsSunk);
   }
 }
